@@ -91,17 +91,17 @@ jobs:
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+          username: sundayrust
+          password: ZhaGhaThat...123
       
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest,${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
-          cache-from: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          tags: sundayrust/aws-blog-api:latest,sundayrust/aws-blog-api:${{ github.sha }}
+          cache-from: type=registry,ref=sundayrust/aws-blog-api:buildcache
+          cache-to: type=registry,ref=sundayrust/aws-blog-api:buildcache,mode=max
 
   # Job 4: Deploy to AWS (optional - requires AWS credentials)
   deploy:
@@ -127,9 +127,9 @@ jobs:
         run: |
           echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-            docker pull ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+            docker pull sundayrust/aws-blog-api:latest
             docker stop aws-blog-api || true
             docker rm aws-blog-api || true
             docker run -d --name aws-blog-api -p 3000:3000 --restart unless-stopped \
-              ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+              sundayrust/aws-blog-api:latest
           '
